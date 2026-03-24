@@ -508,7 +508,7 @@
 		pwm_config = <0 1 0 0 0>;
 	};
 	usb_c_pinctrl:usb_c_pinctrl {
-		//compatible = "mediatek,usb_c_pinctrl";
+		compatible = "mediatek,usb_c_pinctrl";
 	};
 	panel0: panel@0 {
 		compatible = "hx,hx83102p";
