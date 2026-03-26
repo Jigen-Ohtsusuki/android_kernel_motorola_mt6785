@@ -189,17 +189,8 @@ enum IMGSENSOR_RETURN imgsensor_hw_power(
 	char str_index[LENGTH_FOR_SNPRINTF];
 	int ret = 0;
 
-	pr_info(
-		"sensor_idx %d, power %d curr_sensor_name %s, enable list %s\n",
-		sensor_idx,
-		pwr_status,
-		curr_sensor_name,
-		phw->enable_sensor_by_index[(uint32_t)sensor_idx] == NULL
-		? "NULL"
-		: phw->enable_sensor_by_index[(uint32_t)sensor_idx]);
-
 	if (phw->enable_sensor_by_index[(uint32_t)sensor_idx] &&
-	!strstr(phw->enable_sensor_by_index[(uint32_t)sensor_idx], curr_sensor_name))
+	!strstr(phw->enable_sensor_by_index[(uint32_t)sensor_idx], curr_sensor_name ? curr_sensor_name : ""))
 		return IMGSENSOR_RETURN_ERROR;
 
 

@@ -1193,7 +1193,7 @@ static const struct file_operations semtech_sar_fops = {
 	.owner = THIS_MODULE,
 };
 
-static int semtech_misc_init()
+static int semtech_misc_init(void)
 {
 	int err;
 

@@ -21,21 +21,25 @@
 #include "imgsensor_hw.h"
 
 /*the index is consistent with enum IMGSENSOR_HW_PIN*/
-char * const imgsensor_hw_pin_names[] = {
-	"none",
-	"pdn",
-	"rst",
-	"vcama",
+char * const imgsensor_hw_pin_names[IMGSENSOR_HW_PIN_MAX_NUM] = {
+	[IMGSENSOR_HW_PIN_NONE] = "none",
+	[IMGSENSOR_HW_PIN_PDN]  = "pdn",
+	[IMGSENSOR_HW_PIN_RST]  = "rst",
+	[IMGSENSOR_HW_PIN_AVDD] = "vcama",
 #ifdef CONFIG_REGULATOR_RT5133
-	"vcama1",
+	[IMGSENSOR_HW_PIN_DVDD] = "vcama1",
+	[IMGSENSOR_HW_PIN_DOVDD]= "vcamd",
+	[IMGSENSOR_HW_PIN_AFVDD]= "vcamio",
+#else
+	[IMGSENSOR_HW_PIN_DVDD] = "vcamd",
+	[IMGSENSOR_HW_PIN_DOVDD]= "vcamio",
+	[IMGSENSOR_HW_PIN_AFVDD]= "vcamaf",
 #endif
-	"vcamd",
-	"vcamio",
 #ifdef MIPI_SWITCH
-	"mipi_switch_en",
-	"mipi_switch_sel",
+	[IMGSENSOR_HW_PIN_MIPI_SWITCH_EN] = "mipi_switch_en",
+	[IMGSENSOR_HW_PIN_MIPI_SWITCH_SEL] = "mipi_switch_sel",
 #endif
-	"mclk"
+	[IMGSENSOR_HW_PIN_MCLK] = "mclk"
 };
 
 /*the index is consistent with enum IMGSENSOR_HW_ID*/
@@ -70,7 +74,21 @@ enum IMGSENSOR_RETURN imgsensor_hw_init(struct IMGSENSOR_HW *phw)
 			continue;
 
 		ppwr_info = pcust_pwr_cfg->pwr_info;
-		while (ppwr_info->pin != IMGSENSOR_HW_PIN_NONE) {
+		while (ppwr_info->pin != IMGSENSOR_HW_PIN_NONE &&
+		       ppwr_info < pcust_pwr_cfg->pwr_info + IMGSENSOR_HW_POWER_INFO_MAX) {
+			/* Bounds check to prevent out-of-bounds array access
+			 * which can cause a kernel panic due to #ifdef mismatches
+			 * between IMGSENSOR_HW_PIN enum and imgsensor_hw_pin_names[]
+			 */
+			if ((int)ppwr_info->pin < 0 ||
+			    (unsigned int)ppwr_info->pin >= IMGSENSOR_HW_PIN_MAX_NUM) {
+				ppwr_info++;
+				continue;
+			}
+			if (imgsensor_hw_pin_names[ppwr_info->pin] == NULL) {
+				ppwr_info++;
+				continue;
+			}
 			memset(str_prop_name, 0, sizeof(str_prop_name));
 			snprintf(str_prop_name,
 				sizeof(str_prop_name),
@@ -118,7 +136,13 @@ enum IMGSENSOR_RETURN imgsensor_hw_init(struct IMGSENSOR_HW *phw)
 			continue;
 
 		ppwr_info = pcust_pwr_cfg->pwr_info;
-		while (ppwr_info->pin != IMGSENSOR_HW_PIN_NONE) {
+		while (ppwr_info->pin != IMGSENSOR_HW_PIN_NONE &&
+		       ppwr_info < pcust_pwr_cfg->pwr_info + IMGSENSOR_HW_POWER_INFO_MAX) {
+			if ((int)ppwr_info->pin < 0 ||
+			    (unsigned int)ppwr_info->pin >= IMGSENSOR_HW_PIN_MAX_NUM) {
+				ppwr_info++;
+				continue;
+			}
 			for (j = 0;
 				j < IMGSENSOR_HW_ID_MAX_NUM &&
 					ppwr_info->id != phw->pdev[j]->id;
@@ -269,16 +293,8 @@ enum IMGSENSOR_RETURN imgsensor_hw_power(
 	char *curr_sensor_name = psensor->inst.psensor_list->name;
 	char str_index[LENGTH_FOR_SNPRINTF];
 
-	PK_DBG("sensor_idx %d, power %d curr_sensor_name %s, enable list %s\n",
-		sensor_idx,
-		pwr_status,
-		curr_sensor_name,
-		phw->enable_sensor_by_index[(uint32_t)sensor_idx] == NULL
-		? "NULL"
-		: phw->enable_sensor_by_index[(uint32_t)sensor_idx]);
-
 	if (phw->enable_sensor_by_index[(uint32_t)sensor_idx] &&
-	!strstr(phw->enable_sensor_by_index[(uint32_t)sensor_idx], curr_sensor_name))
+	!strstr(phw->enable_sensor_by_index[(uint32_t)sensor_idx], curr_sensor_name ? curr_sensor_name : ""))
 		return IMGSENSOR_RETURN_ERROR;
 
 	ret = snprintf(str_index, sizeof(str_index), "%d", sensor_idx);
