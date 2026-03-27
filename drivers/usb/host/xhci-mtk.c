@@ -984,7 +984,6 @@ static int xhci_mtk_remove(struct platform_device *dev)
 		xhci_mtk_frmcnt_range(hcd, DEV_SPEED_INACTIVE);
 	}
 #endif
-
 	usb_remove_hcd(shared_hcd);
 	xhci->shared_hcd = NULL;
 	xhci_mtk_phy_power_off(mtk);
