@@ -8,7 +8,7 @@ BASE_VER="v4.14"
 echo "Starting upstreaming process from ${BASE_VER}.${START} to ${BASE_VER}.${END}"
 
 # Find the last merged version to resume if needed
-LAST_MERGED=$(git log -1 --grep="Merge \[*v4.14." --oneline | grep -o 'v4.14.[0-9]*' | awk -F. '{print $3}' | head -1)
+LAST_MERGED=$(git log -1 --grep="Merge v4.14." --oneline | grep -o 'v4.14.[0-9]*' | awk -F. '{print $3}' | head -1)
 if [ -n "$LAST_MERGED" ] && [ "$LAST_MERGED" -ge "$START" ]; then
     NEXT=$((LAST_MERGED + 1))
     echo "Detected last merged version: ${BASE_VER}.${LAST_MERGED}"
@@ -56,7 +56,9 @@ for ((i=START; i<=END; i++)); do
     if [ $APPLY_STATUS -eq 0 ]; then
         echo "Patch applied cleanly. Committing..."
         git add .
-        git commit -m "Merge [v4.14.${i}](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v4.14.${i})"
+        git commit -m "Merge ${BASE_VER}.${i}
+
+Upstream-tag: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=${BASE_VER}.${i}"
     else
         echo "======================================================"
         echo " CONFLICT DETECTED while applying ${BASE_VER}.${i}"
@@ -66,7 +68,9 @@ for ((i=START; i<=END; i++)); do
         echo "  1. Search for '<<<<<<<' in your files to find the conflicts."
         echo "  2. Resolve the conflicts manually."
         echo "  3. Run: git add ."
-        echo "  4. Run: git commit -m \"Merge [${BASE_VER}.${i}](https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=${BASE_VER}.${i})\""
+        echo "  4. Run: git commit -m \"Merge ${BASE_VER}.${i}
+
+Upstream-tag: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=${BASE_VER}.${i}\""
         echo "  5. Re-run this script (./upstream.sh) to continue to the next version."
         exit 1
     fi
