@@ -2587,12 +2587,7 @@ int ext4_generic_delete_entry(handle_t *handle,
 	pde = NULL;
 	de = (struct ext4_dir_entry_2 *)entry_buf;
 	while (i < buf_size - csum_size) {
-		if (ext4_check_dir_entry(dir, NULL, de, bh,
-<<<<<<< ours
-					 bh->b_data, bh->b_size, lblk, i))
-=======
-					 entry_buf, buf_size, i))
->>>>>>> theirs
+					 entry_buf, buf_size, lblk, i))
 			return -EFSCORRUPTED;
 		if (de == de_del)  {
 			if (pde)
@@ -3843,6 +3838,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 	if (!old.bh || le32_to_cpu(old.de->inode) != old.inode->i_ino)
 		goto end_rename;
 
+
 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
 				 &new.de, &new.inlined, NULL);
 	if (IS_ERR(new.bh)) {
@@ -4007,6 +4003,7 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 	u8 new_file_type;
 	int retval;
 	struct timespec ctime;
+
 
 	if ((ext4_test_inode_flag(new_dir, EXT4_INODE_PROJINHERIT) &&
 	     !projid_eq(EXT4_I(new_dir)->i_projid,
