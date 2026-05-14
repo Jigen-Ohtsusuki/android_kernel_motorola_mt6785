@@ -47,7 +47,6 @@ struct bq27xxx_reg_cache {
 	int capacity;
 	int energy;
 	int flags;
-	int power_avg;
 	int health;
 	int elapsed_time_month;
 	int elapsed_time_day;
