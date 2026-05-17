@@ -1395,14 +1395,16 @@ static int i2c_hid_probe(struct i2c_client *client,
 	hid->input_registered=false;
 
 	if(hid->vendor==0x17EF&&hid->product==0x6103){
-		snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX P11  KeyBoard Lenovo",
-		 client->name, hid->vendor, hid->product);
+		snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X P11  KeyBoard Lenovo",
+		 client->name, (u16)hid->vendor, (u16)hid->product);
 		//register_kb_wakeup_devices();
-	}
-	if(hid->vendor==0x04F3&&hid->product==0x3164){
-		snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX P11  TouchPad",
-		 client->name, hid->vendor, hid->product);
+	} else if(hid->vendor==0x04F3&&hid->product==0x3164){
+		snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X P11  TouchPad",
+		 client->name, (u16)hid->vendor, (u16)hid->product);
 		//register_mouse_wakeup_devices();
+	} else {
+		snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
+			 client->name, (u16)hid->vendor, (u16)hid->product);
 	}
 	printk(KERN_DEBUG "hid->version_id=0x%x ",le16_to_cpu(ihid->hdesc.wVersionID));
 
