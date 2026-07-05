@@ -70,9 +70,6 @@ ENTRY(__guest_enter)
 	// Store the host regs
 	save_callee_saved_regs x1
 
-<<<<<<< ours
-	add	x29, x0, #VCPU_CONTEXT
-=======
 	// Now the host state is stored if we have a pending RAS SError it must
 	// affect the host. If any asynchronous exception is pending we defer
 	// the guest entry.
@@ -82,8 +79,7 @@ ENTRY(__guest_enter)
 	ret
 
 1:
-	add	x18, x0, #VCPU_CONTEXT
->>>>>>> theirs
+	add	x29, x0, #VCPU_CONTEXT
 
 	// Restore guest regs x0-x17
 	ldp	x0, x1,   [x29, #CPU_XREG_OFFSET(0)]
