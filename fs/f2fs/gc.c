@@ -1071,6 +1071,11 @@ next_step:
 				continue;
 			}
 
+			if (special_file(inode->i_mode)) {
+				iput(inode);
+				continue;
+			}
+
 			if (!down_write_trylock(
 				&F2FS_I(inode)->i_gc_rwsem[WRITE])) {
 				iput(inode);
